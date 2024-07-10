@@ -1,0 +1,31 @@
+.login-container {
+  padding: 8px;
+}
+
+.content {
+  width: 50%;
+}
+
+.content-left {
+  background-image: url("https://cdn.dribbble.com/users/1038196/screenshots/18773410/media/40c379874eb8bff3223a4d3af520cc3f.jpg");
+  border-radius: 12px;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center center;
+}
+
+.content-right {
+  color: black;
+}
+
+h1 {
+  font-weight: 700 !important;
+}
+
+.quote-icon-wrapper {
+  background-color: #fff;
+  width: 30px;
+  height: 30px;
+  border-radius: 4px;
+  font-size: 20px;
+}
