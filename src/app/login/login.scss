@@ -1,5 +1,8 @@
 .login-container {
   padding: 8px;
+  max-height: 100vh;
+  max-width: 100vw;
+  overflow: hidden;
 }
 
 .content {
@@ -28,4 +31,54 @@ h1 {
   height: 30px;
   border-radius: 4px;
   font-size: 20px;
+}
+
+.break-line {
+  width: 40%;
+  height: 3px;
+  background-color: #f6f6f6;
+  margin-top: 12px;
+}
+
+.link-btn {
+  height: 36px;
+  background-color: rgba(246, 246, 246, 0.4);
+
+  width: 150px;
+  padding: 4px;
+  font-size: 12px;
+  color: black;
+  border-radius: 36px;
+  font-weight: 400;
+  color: White;
+
+  &:hover {
+    background-color: #f6f6f6;
+  }
+}
+
+.quote-text {
+  font-weight: 500;
+  color: White;
+  text-align: justify;
+}
+
+.owner-text {
+  font-weight: 500;
+  color: White;
+}
+
+.rainbow-line {
+  height: 4px;
+  border-radius: 4px;
+  background-image: linear-gradient(
+    to right,
+    violet,
+    indigo,
+    blue,
+    green,
+    yellow,
+    orange,
+    red
+  );
 }

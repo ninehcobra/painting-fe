@@ -1,0 +1,35 @@
+.avatar-img {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+}
+
+.user-name {
+  font-weight: 500;
+}
+
+.user-info {
+  cursor: pointer;
+
+  &:hover {
+    background-color: #f6f6f6;
+  }
+}
+
+.content-detail {
+  overflow-y: scroll;
+}
+
+.btn-add {
+  height: 30px;
+  border: 1px solid #f6f6f6;
+  width: 80px;
+  color: green;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 500;
+
+  &:hover {
+    background-color: #f6f6f6;
+  }
+}
