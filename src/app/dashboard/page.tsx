@@ -29,9 +29,12 @@ import {
 } from "@ant-design/icons";
 import { toast } from "react-toastify";
 import {
+  useCreatePaintingMutation,
   useDeletePaintingMutation,
   useGetAllPaintingColorsQuery,
+  useUpdatePaintingMutation,
 } from "@/redux/services/painting.service";
+import { on } from "events";
 
 interface IPaintingResponse {
   PaintingId: string;
@@ -50,13 +53,102 @@ export default function DashBoard() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const [isModalUpdateOpen, setIsModalUpdateOpen] = useState(false);
+  const [paintingData, setPaintingData] = useState<IPaintingResponse>({
+    PaintingId: "",
+    PaintingName: "",
+    PaintingDescription: "",
+    PaintingAuthor: "",
+    Price: 1000000,
+    PublishYear: 1000,
+    CreatedDate: "",
+    StyleId: "",
+  });
+
+  const [paintingUpdateData, setPaintingUpdateData] =
+    useState<IPaintingResponse>({
+      PaintingId: "",
+      PaintingName: "",
+      PaintingDescription: "",
+      PaintingAuthor: "",
+      Price: 1000000,
+      PublishYear: 1000,
+      CreatedDate: "",
+      StyleId: "",
+    });
+
+  const onChangePaintingData = (value: string, name: string) => {
+    if (name == "Price" || name == "PublishYear") {
+      setPaintingData({ ...paintingData, [name]: parseInt(value) });
+    } else {
+      setPaintingData({ ...paintingData, [name]: value });
+    }
+  };
+
+  const handleUpdatePainting = (item: IPaintingResponse) => {
+    setPaintingUpdateData(item);
+    setIsModalUpdateOpen(true);
+  };
+
+  const onChangePaintingUpdateData = (value: string, name: string) => {
+    if (name == "Price" || name == "PublishYear") {
+      setPaintingUpdateData({ ...paintingUpdateData, [name]: parseInt(value) });
+    } else {
+      setPaintingUpdateData({ ...paintingUpdateData, [name]: value });
+    }
+  };
+
   const showModal = () => {
     setIsModalOpen(true);
   };
 
+  const [
+    createPainting,
+    { isSuccess: isCreateSuccess, isError: isCreateError },
+  ] = useCreatePaintingMutation();
   const handleOk = () => {
-    setIsModalOpen(false);
+    const createData = {
+      ...paintingData,
+      CreatedDate: new Date().toISOString(),
+    };
+    createPainting(createData);
   };
+
+  const [
+    updatePainting,
+    { isSuccess: isUpdateSuccess, isError: isUpdateError },
+  ] = useUpdatePaintingMutation();
+
+  useEffect(() => {
+    if (isUpdateSuccess) {
+      setIsModalUpdateOpen(false);
+      toast.success("Update painting success!");
+    }
+    if (isUpdateError) {
+      toast.error("Update painting failed!");
+    }
+  }, [isUpdateSuccess, isUpdateError]);
+  const handleOKUpdate = () => {
+    const updatedPainting = {
+      ...paintingUpdateData,
+      CreatedDate: new Date().toISOString(),
+    };
+    updatePainting(updatedPainting);
+  };
+
+  const handleCancelUpdate = () => {
+    setIsModalUpdateOpen(false);
+  };
+
+  useEffect(() => {
+    if (isCreateSuccess) {
+      setIsModalOpen(false);
+      toast.success("Create painting success!");
+    }
+    if (isCreateError) {
+      toast.error("Create painting failed!");
+    }
+  }, [isCreateSuccess, isCreateError]);
 
   const handleCancel = () => {
     setIsModalOpen(false);
@@ -235,7 +327,11 @@ export default function DashBoard() {
                 renderItem={(item: IPaintingResponse, index) => (
                   <List.Item
                     actions={[
-                      <a style={{ color: "blue" }} key="list-loadmore-edit">
+                      <a
+                        onClick={() => handleUpdatePainting(item)}
+                        style={{ color: "blue" }}
+                        key="list-loadmore-edit"
+                      >
                         edit
                       </a>,
                       <a
@@ -250,10 +346,9 @@ export default function DashBoard() {
                     <List.Item.Meta
                       avatar={<Avatar src={`./images/painting.png`} />}
                       title={
-                        <a
+                        <div
                           style={{ textDecoration: "none" }}
-                          href="https://ant.design"
-                        >{`${item.PaintingName} - ${item.PaintingAuthor} - ${item.PublishYear}`}</a>
+                        >{`${item.PaintingName} - ${item.PaintingAuthor} - ${item.PublishYear}`}</div>
                       }
                       description={item.PaintingDescription}
                     />
@@ -268,7 +363,18 @@ export default function DashBoard() {
               />
             </div>
           ) : (
-            <div>There are 0 painting in database.</div>
+            <div className="d-flex justify-content-between align-items-center">
+              <div style={{ fontWeight: "500" }} className="mt-2 mb-2">
+                We have a total
+                <span style={{ color: "green" }}>{` 0`}</span> of paintings.
+              </div>
+              <div
+                onClick={showModal}
+                className="btn-add d-flex align-items-center justify-content-center"
+              >
+                Add
+              </div>
+            </div>
           )}
         </Content>
       </Layout>
@@ -279,43 +385,206 @@ export default function DashBoard() {
         onCancel={handleCancel}
       >
         <label>Painting id:</label>
-        <Input className="mb-2" placeholder="Painting id" />
+        <Input
+          className="mb-2"
+          placeholder="Painting id"
+          value={paintingData.PaintingId}
+          onChange={(value) =>
+            onChangePaintingData(value.target.value, "PaintingId")
+          }
+        />
         <label>Painting name:</label>
-        <Input className="mb-2" placeholder="Painting name" />
+        <Input
+          className="mb-2"
+          placeholder="Painting name"
+          value={paintingData.PaintingName}
+          onChange={(value) =>
+            onChangePaintingData(value.target.value, "PaintingName")
+          }
+        />
         <label>Painting description:</label>
-        <Input className="mb-2" placeholder="Painting description" />
+        <Input
+          value={paintingData.PaintingDescription}
+          onChange={(value) =>
+            onChangePaintingData(value.target.value, "PaintingDescription")
+          }
+          className="mb-2"
+          placeholder="Painting description"
+        />
         <label>Painting author:</label>
-        <Input className="mb-2" placeholder="Painting author" />
+        <Input
+          value={paintingData.PaintingAuthor}
+          onChange={(value) =>
+            onChangePaintingData(value.target.value, "PaintingAuthor")
+          }
+          className="mb-2"
+          placeholder="Painting author"
+        />
         <label>Painting Price (VNĐ):</label>
-        <InputNumber className="ms-2" min={0} defaultValue={100000} />
+        <InputNumber
+          value={paintingData.Price}
+          onChange={(value) =>
+            onChangePaintingData(value ? value.toString() : "0", "Price")
+          }
+          className="ms-2"
+          min={0}
+          defaultValue={100000}
+        />
         <label className="ms-3">Published Year:</label>
         <InputNumber
+          onChange={(value) =>
+            onChangePaintingData(
+              value ? value.toString() : "1000",
+              "PublishYear"
+            )
+          }
+          value={paintingData.PublishYear}
           className="ms-2"
           min={1000}
           max={2024}
           defaultValue={2024}
         />
-        <label>Style Id:</label>
-        <Select
-          className="ms-2"
-          showSearch
-          placeholder="Select a person"
-          optionFilterProp="label"
-          options={[
-            {
-              value: "jack",
-              label: "Jack",
-            },
-            {
-              value: "lucy",
-              label: "Lucy",
-            },
-            {
-              value: "tom",
-              label: "Tom",
-            },
-          ]}
+        <div className="mt-2">
+          <label>Style Id:</label>
+          <Select
+            size="large"
+            className="ms-2"
+            style={{ width: "240px" }}
+            showSearch
+            placeholder="Select a style"
+            optionFilterProp="label"
+            value={paintingData.StyleId}
+            onChange={(value) => onChangePaintingData(value, "StyleId")}
+            options={[
+              {
+                value: "SS00112",
+                label: "Wet-on-Wet Technique",
+              },
+              {
+                value: "SS00118",
+                label: "Glazing Technique",
+              },
+              {
+                value: "SS00155",
+                label: "Dry Brush Technique",
+              },
+              {
+                value: "SS00342",
+                label: "Negative Painting",
+              },
+              {
+                value: "SS00662",
+                label: "Impressionistic Style",
+              },
+            ]}
+          />
+        </div>
+      </Modal>
+
+      <Modal
+        title="Update Painting"
+        open={isModalUpdateOpen}
+        onOk={handleOKUpdate}
+        onCancel={handleCancelUpdate}
+      >
+        <label>Painting id:</label>
+        <Input
+          className="mb-2"
+          placeholder="Painting id"
+          value={paintingUpdateData.PaintingId}
+          onChange={(value) =>
+            onChangePaintingUpdateData(value.target.value, "PaintingId")
+          }
         />
+        <label>Painting name:</label>
+        <Input
+          className="mb-2"
+          placeholder="Painting name"
+          value={paintingUpdateData.PaintingName}
+          onChange={(value) =>
+            onChangePaintingUpdateData(value.target.value, "PaintingName")
+          }
+        />
+        <label>Painting description:</label>
+        <Input
+          value={paintingUpdateData.PaintingDescription}
+          onChange={(value) =>
+            onChangePaintingUpdateData(
+              value.target.value,
+              "PaintingDescription"
+            )
+          }
+          className="mb-2"
+          placeholder="Painting description"
+        />
+        <label>Painting author:</label>
+        <Input
+          value={paintingUpdateData.PaintingAuthor}
+          onChange={(value) =>
+            onChangePaintingUpdateData(value.target.value, "PaintingAuthor")
+          }
+          className="mb-2"
+          placeholder="Painting author"
+        />
+        <label>Painting Price (VNĐ):</label>
+        <InputNumber
+          value={paintingUpdateData.Price}
+          onChange={(value) =>
+            onChangePaintingUpdateData(value ? value.toString() : "0", "Price")
+          }
+          className="ms-2"
+          min={0}
+          defaultValue={100000}
+        />
+        <label className="ms-3">Published Year:</label>
+        <InputNumber
+          onChange={(value) =>
+            onChangePaintingUpdateData(
+              value ? value.toString() : "1000",
+              "PublishYear"
+            )
+          }
+          value={paintingUpdateData.PublishYear}
+          className="ms-2"
+          min={1000}
+          max={2024}
+          defaultValue={2024}
+        />
+        <div className="mt-2">
+          <label>Style Id:</label>
+          <Select
+            size="large"
+            className="ms-2"
+            style={{ width: "240px" }}
+            showSearch
+            placeholder="Select a style"
+            optionFilterProp="label"
+            value={paintingUpdateData.StyleId}
+            onChange={(value) => onChangePaintingUpdateData(value, "StyleId")}
+            options={[
+              {
+                value: "SS00112",
+                label: "Wet-on-Wet Technique",
+              },
+              {
+                value: "SS00118",
+                label: "Glazing Technique",
+              },
+              {
+                value: "SS00155",
+                label: "Dry Brush Technique",
+              },
+              {
+                value: "SS00342",
+                label: "Negative Painting",
+              },
+              {
+                value: "SS00662",
+                label: "Impressionistic Style",
+              },
+            ]}
+          />
+        </div>
       </Modal>
     </Layout>
   );

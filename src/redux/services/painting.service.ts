@@ -38,6 +38,14 @@ export const paintingApi = createApi({
       }),
       invalidatesTags: ["Painting"],
     }),
+    updatePainting: builder.mutation<any, any>({
+      query: (painting) => ({
+        url: `/odata/WatercolorsPainting/${painting.PaintingId}`,
+        method: "PUT",
+        body: painting,
+      }),
+      invalidatesTags: ["Painting"],
+    }),
   }),
 });
 
@@ -46,4 +54,5 @@ export const {
   useDeletePaintingMutation,
   useGetCountPaintingColorsQuery,
   useCreatePaintingMutation,
+  useUpdatePaintingMutation,
 } = paintingApi;
